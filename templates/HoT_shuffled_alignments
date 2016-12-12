@@ -1,0 +1,47 @@
+#!/bin/bash
+
+    perl ${params.guidance2dir}/www/Guidance/guidance.pl \
+        --seqFile ${shuffled_seq_file} \
+        --msaProgram ${params.aligner} \
+        --seqType aa \
+        --outDir \${PWD} \
+        --program HoT \
+        --mafft mafft \
+        --clustalw clustalw2 \
+        --prank prank
+
+    mkdir \$PWD/temp
+    tar -zxf MSA.${params.aligner}_HoT_Dir.tar.gz -C temp
+
+    for i in temp/COS_MSA/*.fasta; do
+        j=\${i%.*}
+        perl /guidance.v2.01/www/Guidance/exec/name2codeFastaFrom1.pl \$i temp/MSA_cos_MFT/seq_names.txt \$j.code.fas
+        perl /guidance.v2.01/www/Guidance/code2nameFasta.pl \$j.code.fas Seqs.Codes \$j.fa
+        sed -i '/^\\s*\$/d' \$j.fa
+    done
+
+    mkdir \$PWD/alternativeMSA
+    mv temp/COS_MSA/*.fa alternativeMSA/.
+
+    mkdir \$PWD/scores
+    cp MSA.${params.aligner}.Guidance* scores/.
+
+    # AVERAGE COL COL SCORE 
+    count=0;
+    total=0;
+    sed -i -e "1d" MSA.MAFFT.Guidance_col_col.scr
+    for i in \$( awk '{ print \$2; }' MSA.MAFFT.Guidance_col_col.scr )
+    do
+      total=\$(echo \$total+\$i | bc )
+      ((count++))
+    done
+    echo "scale=2; \$total / \$count" | bc > 'avg.scr'
+
+    # STD DEV OF COL COL SCORE
+    myNumbers=\$(awk '{ print \$2; }' MSA.MAFFT.Guidance_col_col.scr )
+    standardDeviation=\$(
+        echo "\$myNumbers" |
+        awk '{sum+=\$1; sumsq+=\$1*\$1}END{print sqrt(sumsq/NR - (sum/NR)**2)}'
+    )
+    echo \$standardDeviation > 'std.scr'
+

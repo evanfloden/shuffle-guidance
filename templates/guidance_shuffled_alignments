@@ -1,0 +1,26 @@
+#!/bin/bash
+
+    perl ${params.guidance2dir}/www/Guidance/guidance.pl \
+        --seqFile ${shuffled_seq_file} \
+        --msaProgram ${params.aligner} \
+        --seqType aa \
+        --outDir \${PWD} \
+        --program GUIDANCE \
+        --mafft mafft \
+        --clustalw clustalw2 \
+        --prank prank
+
+    mkdir \$PWD/temp
+    tar -zxf MSA.${params.aligner}.Guidance_BP_Dir.tar.gz -C temp
+
+    for i in temp/BP/BP_MSA/*.aln; do
+        j=\${i%.*}
+        perl /guidance.v2.01/www/Guidance/code2nameFasta.pl \$i Seqs.Codes \$j.fa
+        sed -i '/^\\s*\$/d' \$j.fa
+    done
+ 
+    mkdir \$PWD/alternativeMSA
+    cp temp/BP/BP_MSA/*.fa alternativeMSA/.
+
+    mkdir \$PWD/scores
+    cp MSA.${params.aligner}.Guidance* scores/.

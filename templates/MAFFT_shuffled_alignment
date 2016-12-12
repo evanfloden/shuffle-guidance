@@ -1,0 +1,2 @@
+mafft --retree 1 --maxiterate 0 !{shuffled_seq_file} > !{shuffled_seq_file.baseName}.aln
+

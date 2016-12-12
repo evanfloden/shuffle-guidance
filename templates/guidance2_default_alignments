@@ -1,0 +1,17 @@
+#!/bin/bash
+
+   perl ${params.guidance2dir}/www/Guidance/guidance.pl \
+        --seqFile ${datasetFile} \
+        --msaProgram ${params.aligner} \
+        --seqType aa \
+        --outDir \${PWD} \
+        --program GUIDANCE2 \
+        --mafft mafft \
+        --clustalw clustalw2 \
+        --prank prank
+
+    mkdir \$PWD/alternativeMSA
+    tar -zxf MSA.${params.aligner}.Guidance2_AlternativeMSA.tar.gz -C alternativeMSA
+
+    mkdir \$PWD/scores
+    cp MSA.${params.aligner}.Guidance* scores/.
