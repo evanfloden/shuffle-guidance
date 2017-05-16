@@ -156,8 +156,7 @@ RUN wget -q http://mafft.cbrc.jp/alignment/software/mafft-7.130-with-extensions-
 # HMMER for esl-suite of tools
 #
 RUN wget -q http://eddylab.org/software/hmmer3/3.1b2/hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
-  tar xf hmmer-3.1b2-linux-intel-x86_64.tar.gz
+  tar xf hmmer-3.1b2-linux-intel-x86_64.tar.gz && \
+  apt-get install bc 
   
-ENV PATH=$PATH:/hmmer-3.1b2-linux-intel-x86_64/binaries
-
-RUN apt-get install bc
+ENV PATH=$PATH:/hmmer-3.1b2-linux-intel-x86_64/binaries 

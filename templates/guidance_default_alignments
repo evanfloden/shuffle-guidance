@@ -5,6 +5,7 @@
         --msaProgram ${params.aligner} \
         --seqType aa \
         --outDir \${PWD} \
+        --bootstraps ${shuffle_num} \
         --program GUIDANCE \
         --mafft mafft \
         --clustalw clustalw2 \

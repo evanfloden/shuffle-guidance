@@ -12,9 +12,9 @@ params.name             = "tutorial_data"
 params.seq              = "$baseDir/tutorial/tips16_0.5_001.0400.fa"
 params.ref              = "$baseDir/tutorial/tips16_asymmetric_0.5.unroot.tree"
 params.output           = "$baseDir/results/"
-params.shuffles         = 100
+params.shuffles         = 10
 params.shuffle_seed     = 42
-params.run_mode         = 'HoT'
+params.run_mode         = 'guidance'
 params.aligner          = "MAFFT"
 
 log.info "s h u f f l e  -  g u i d a n c e  ~  version 0.1"
@@ -35,7 +35,6 @@ log.info "\n"
  * S E T U P   I N P U T S   A N D   P A R A M E T E R S
  *
  */
-
     shuffle_num             = params.shuffles as int
     seed                    = params.shuffle_seed as int
 
@@ -88,7 +87,7 @@ Channel
  *   Shuffle the input order of the sequences
  */
 
-process get_shuffle_replicates{
+process get_shuffle_replicates {
 
     publishDir "${params.output}/${datasetID}/shuffle_replicates", mode: 'copy'
 
@@ -146,48 +145,49 @@ process get_shuffle_alignments{
  *   Outputs a directory containing the alternative alignments and the default alignment
  */
 
-process default_alternative_alignments {
-    tag "generate alternative alignments: $datasetID"
-
-    publishDir "${params.output}/${datasetID}/default_${mode}_alignments/", mode: 'copy', overwrite: 'true'
-  
-    input:
-    set val(datasetID), file(datasetFile) from datasetsB
-
-    output:
-    set val(datasetID), val(mode), val("default"), file ("scores") into defaultAlignmentsScores
-    set val(datasetID), val(mode), val("default"), file ("alternativeMSA") into defaultAlignmentsDirectories  
-    
-    script:
-    //
-    // Alternative Alignments: Generating default alternative alignments
-    //
-    
-    template "${mode}_default_alignments"
-}
-
-process shuffled_alternative_alignments {
-    tag "generate alternative alignments: $datasetID"
-
-    publishDir "${params.output}/${datasetID}/shuffled_${mode}_alignments/${shuffled_seq_file.baseName}/", overwrite: 'true'
-
-    input:
-    set val(datasetID), file(shuffled_seq_file) from shuffle_replicatesB
-
-    output:
-    set val(datasetID), val(mode), val("shuffled_seq_file.baseName"), file ("alternativeMSA") into shuffledAlignmentsDirectories
-    set val(datasetID), val(mode), val("shuffled_seq_file.baseName"), file ("scores") into shuffledAlignmentsScores
-
-    script:
-    //
-    // Alternative: Generating shuffled alternative alignments
-    //
-
-    template "${mode}_shuffled_alignments"
-}
-
-
-/*
+/* process default_alternative_alignments {
+  *  tag "generate alternative alignments: $datasetID $x"
+*
+*    publishDir "${params.output}/${datasetID}/default_${mode}_alignments/${datasetFile}_${x}/", mode: 'copy', overwrite: 'true'
+*  
+*    input:
+*    set val(datasetID), file(datasetFile) from datasetsB
+*    each x from (1..shuffle_num) 
+*
+*    output:
+*    set val(datasetID), val(mode), val("default"), file ("scores") into defaultAlignmentsScores
+*    set val(datasetID), val(mode), val("default"), file ("alternativeMSA") into defaultAlignmentsDirectories  
+*    
+*    script:
+*    //
+*    // Alternative Alignments: Generating default alternative alignments
+*    //
+*    
+*    template "${mode}_default_alignments"
+*}
+*
+*process shuffled_alternative_alignments {
+*    tag "generate alternative alignments: $datasetID"
+*
+*    publishDir "${params.output}/${datasetID}/shuffled_${mode}_alignments/${shuffled_seq_file.baseName}/", overwrite: 'true'
+*
+*    input:
+*    set val(datasetID), file(shuffled_seq_file) from shuffle_replicatesB
+*
+*    output:
+*    set val(datasetID), val(mode), val("shuffled_seq_file.baseName"), file ("alternativeMSA") into shuffledAlignmentsDirectories
+*    set val(datasetID), val(mode), val("shuffled_seq_file.baseName"), file ("scores") into shuffledAlignmentsScores
+*
+*    script:
+*    //
+*    // Alternative: Generating shuffled alternative alignments
+*    //
+*
+*    template "${mode}_shuffled_alignments"
+*}
+*
+*
+*
  *
  **************************/
 
